@@ -15,27 +15,9 @@ public class CountDownLatchDemo {
   public static void main(String[] args) throws Exception {
     log.info("thread {}, latch count {}", Thread.currentThread().getName(), latch.getCount());
 
-    Thread threadA = new Thread(() -> {
-      try {
-        log.info("start thread {} at timestamp {}", Thread.currentThread().getName(), System.currentTimeMillis());
-        Thread.sleep(2000);
-        latch.countDown();
-      } catch (Exception e) {
-        log.error(e.getMessage(), e);
-        throw new RuntimeException(e.getMessage(), e);
-      }
-    }, "threadA");
+    Thread threadA = new Thread(() -> common(), "threadA");
 
-    Thread threadB = new Thread(() -> {
-      try {
-        log.info("start thread {} at timestamp {}", Thread.currentThread().getName(), System.currentTimeMillis());
-        Thread.sleep(2000);
-        latch.countDown();
-      } catch (Exception e) {
-        log.error(e.getMessage(), e);
-        throw new RuntimeException(e.getMessage(), e);
-      }
-    }, "threadB");
+    Thread threadB = new Thread(() -> common(), "threadB");
 
     threadA.start();
     threadB.start();
@@ -45,6 +27,18 @@ public class CountDownLatchDemo {
     }
 
     log.info("thread {}, latch count {}", Thread.currentThread().getName(), latch.getCount());
+  }
+
+  private static void common() {
+    try {
+      log.info("start thread {} at timestamp {}", Thread.currentThread().getName(), System.currentTimeMillis());
+      Thread.sleep(2000);
+    } catch (Exception e) {
+      log.error(e.getMessage(), e);
+      throw new RuntimeException(e.getMessage(), e);
+    } finally {
+      latch.countDown();
+    }
   }
 
 }
