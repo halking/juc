@@ -11,7 +11,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  */
 @SpringBootTest
 @RunWith(SpringRunner.class)
-public class SyncTest {
+public class SyncDemoTest {
 
   @Test
   public void unsafeMethod() throws Exception {
@@ -50,4 +50,5 @@ public class SyncTest {
 
     Thread.sleep(4000L);
   }
+
 }
