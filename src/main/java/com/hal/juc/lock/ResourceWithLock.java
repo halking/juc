@@ -2,6 +2,7 @@ package com.hal.juc.lock;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import lombok.extern.slf4j.Slf4j;
@@ -11,15 +12,16 @@ import lombok.extern.slf4j.Slf4j;
  * @Date: 2019/5/15
  */
 @Slf4j
-public class ResourceQueue {
+public class ResourceWithLock {
 
   private List<Integer> resources = new ArrayList<>();
-  private int num = 0, size = 5, count = 0;
+  private int num = 0, size = 5;
+  private AtomicInteger count = new AtomicInteger(0);
   private Lock lock;
   private Condition productCon;
   private Condition consumeCon;
 
-  public ResourceQueue(Lock lock, Condition productCon, Condition consumeCon) {
+  public ResourceWithLock(Lock lock, Condition productCon, Condition consumeCon) {
     this.lock = lock;
     this.productCon = productCon;
     this.consumeCon = consumeCon;
@@ -34,7 +36,7 @@ public class ResourceQueue {
       }
 
       resources.add(value);
-      ++count;
+      count.incrementAndGet();
       log.info("队列不满,生产[{}]", value);
 
       consumeCon.signal();
@@ -49,13 +51,13 @@ public class ResourceQueue {
   public Integer take() {
     lock.lock();
     try {
-      while (count <= num) {
+      while (count.get() <= num) {
         log.info("队列已空,count[{}]", count);
         consumeCon.await();
       }
 
-      Integer result = resources.remove(count - 1);
-      --count;
+      Integer result = resources.remove(count.get() - 1);
+      count.decrementAndGet();
       log.info("队列不空,消费[{}]", result);
 
       productCon.signal();

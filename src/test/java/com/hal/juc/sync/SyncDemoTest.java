@@ -14,6 +14,21 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class SyncDemoTest {
 
   @Test
+  public void produceAndConsume() {
+    ResourceWithSync resourceWithSync = new ResourceWithSync();
+    //producer
+    for (int i = 0; i < 10; i++) {
+      int a = i;
+      new Thread(() -> resourceWithSync.put(Integer.valueOf(a))).start();
+    }
+
+    //consumer
+    for (int i = 0; i < 5; i++) {
+      new Thread(() -> resourceWithSync.take()).start();
+    }
+  }
+
+  @Test
   public void unsafeMethod() throws Exception {
     SyncDemo sync = new SyncDemo();
     new Thread(sync, "unsafe_1").start();
@@ -34,9 +49,8 @@ public class SyncDemoTest {
   @Test
   public void safeClassMethod() throws Exception {
     SyncDemo sync = new SyncDemo();
-    new Thread(sync,"class_1").start();
-    new Thread(sync,"class_2").start();
-
+    new Thread(sync, "class_1").start();
+    new Thread(sync, "class_2").start();
 
     Thread.sleep(4000L);
   }
@@ -45,8 +59,8 @@ public class SyncDemoTest {
   public void methodWithSync() throws Exception {
     SyncDemo sync = new SyncDemo();
 
-    new Thread(sync,"object_1").start();
-    new Thread(sync,"object_2").start();
+    new Thread(sync, "object_1").start();
+    new Thread(sync, "object_2").start();
 
     Thread.sleep(4000L);
   }
